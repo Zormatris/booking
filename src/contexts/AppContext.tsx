@@ -62,12 +62,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }
 
   function updateClient(id: string, updates: Partial<Omit<Client, 'id' | 'createdAt'>>) {
-    update({
-      ...data!,
-      clients: data!.clients.map(c =>
-        c.id === id ? { ...c, ...updates, updatedAt: new Date().toISOString() } : c
-      ),
-    })
+    const updatedClients = data!.clients.map(c =>
+      c.id === id ? { ...c, ...updates, updatedAt: new Date().toISOString() } : c
+    )
+    // If the selected client is being made inactive, move to the first active client
+    let newSelectedClientId = data!.selectedClientId
+    if (data!.selectedClientId === id && updates.status === 'inactive') {
+      const firstActive = updatedClients.find(c => c.status === 'active')
+      if (firstActive) newSelectedClientId = firstActive.id
+    }
+    update({ ...data!, clients: updatedClients, selectedClientId: newSelectedClientId })
   }
 
   function deleteClient(id: string) {

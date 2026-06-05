@@ -38,7 +38,7 @@ Phase 2 is complete. All Phase 2 checklist items from docs/02_PHASES.md are sati
 - **Improved empty states:** Dashboard no-clients links to /clients. Categories panel says "Add one above." Reports shows no-data nudge with link to Transactions.
 - **Duplicate transaction warning:** On Add mode, if a transaction with the same client/date/type/payee/amount/account exists, a warning replaces the submit button row. User can "Add Anyway" or "Go Back" to edit.
 - **Category cleanup tools:** Each category shows its transaction usage count inline. Deactivating a category with active transaction usage prompts an inline confirmation ("Used by N transactions. Deactivate? Yes / Cancel"). Categories with 0 usage toggle immediately.
-- **Client archive behavior:** Inactive clients are removed from the default top-bar client switcher. Only the currently selected client is shown if it is inactive (labelled "(inactive)"). All inactive clients remain fully visible on the Clients page.
+- **Client archive behavior:** Inactive clients are removed from the default top-bar client switcher. When the selected client is marked inactive via the edit form, `updateClient` in AppContext automatically moves the selection to the first active client (if one exists). Only if no active clients remain does the inactive client stay selected. All inactive clients remain fully visible on the Clients page.
 - **Stale UI copy corrected:** Sidebar footer now reads "LedgerDesk — Local MVP" (was "Phase 1 — Local Storage"). Settings version note now reads "LedgerDesk — Local MVP" (was "LedgerDesk — Phase 1").
 
 ## Phase 2 Completion Checklist (from docs/02_PHASES.md)
@@ -48,7 +48,7 @@ Phase 2 is complete. All Phase 2 checklist items from docs/02_PHASES.md are sati
 - [x] Delete actions require confirmation
 - [x] Bad backup imports fail safely with a readable error
 - [x] Reports can be printed cleanly
-- [x] Archived clients do not clutter the default client switcher
+- [x] Archived clients do not clutter the default client switcher; marking selected client inactive auto-selects first active client
 - [x] The app still works fully offline in browser storage
 
 ## In Progress
@@ -78,8 +78,8 @@ Run `npm run dev`, then test at http://localhost:3000:
 2. **Field validation:** Leave Payee blank, click Add. Confirm red border + error under Payee only. Fix payee, confirm error clears immediately.
 3. **Categories usage count:** Go to Categories. Confirm each category shows a transaction count like "12 txns" next to the name.
 4. **Category deactivate warning:** Click "Active" on a category with transactions. Confirm an inline "Used by N transactions. Deactivate? Yes / Cancel" prompt appears before toggling.
-5. **Client switcher — inactive clients hidden:** Go to Clients and mark Rivera Plumbing LLC as Inactive. Return to any page. Confirm Rivera Plumbing is NOT in the top-bar client switcher (unless it was the selected client).
-6. **Client still accessible if inactive while selected:** Make Rivera Plumbing the selected client, then mark it inactive. Confirm it appears in the switcher as "Rivera Plumbing LLC (inactive)" but other inactive clients do not appear.
+5. **Client switcher — inactive clients hidden:** Go to Clients and mark Rivera Plumbing LLC as Inactive while Maple Street Bakery is selected. Confirm Rivera Plumbing is NOT in the top-bar client switcher.
+6. **Auto-select on archive:** Switch to Rivera Plumbing LLC in the client switcher. Go to Clients, click Edit on Rivera Plumbing, change status to Inactive, save. Confirm the top-bar switcher automatically moves to Maple Street Bakery (the first active client) — not Rivera Plumbing.
 7. **Import error specifics:** In Settings, import a JSON file where you have manually removed a `clientId` field from a transaction. Confirm the error message names the specific transaction position and field.
 8. **Import relationship check:** In Settings, import a JSON file where a transaction references a `clientId` that doesn't exist in the clients list. Confirm a specific relationship error message appears.
 9. **Sidebar copy:** Confirm the sidebar footer says "LedgerDesk — Local MVP" (not "Phase 1").
