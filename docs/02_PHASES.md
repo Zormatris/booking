@@ -2,311 +2,167 @@
 
 ## Purpose
 
-This file defines the build path for LedgerDesk. Claude Code must build the app in controlled phases and must not jump ahead.
+This project is a **mock desktop bookkeeping web app** for local demo/testing only.
 
-The first priority is a usable two-hour desktop prototype for one real bookkeeper. Later phases can turn it into a stronger internal tool or a sellable SaaS.
+The goal is to build a simple QuickBooks-style prototype that can run locally with:
 
----
+```bash
+npm install
+npm run dev
+```
 
-# Phase 1 — Desktop Local MVP
+This app is not a SaaS product yet. It should not include login, Stripe, Supabase, databases, subscriptions, cloud sync, or third-party services.
 
-**Goal:** Build a fully demoable desktop-first bookkeeping app that runs locally in the browser using `localStorage`.
-
-**Includes:**
-
-- Create or adapt the app shell for a desktop-first web app
-- Left sidebar navigation
-- Top bar with app name and selected client switcher
-- Seeded local data for at least 2 demo clients
-- Seeded default bookkeeping categories
-- Dashboard page with:
-  - income card
-  - expense card
-  - net profit card
-  - uncategorized card
-  - recent transactions table
-- Clients page with:
-  - client list
-  - add client
-  - edit client
-  - active/inactive status
-- Transactions page with:
-  - transaction table
-  - add transaction form
-  - edit transaction form
-  - delete transaction
-  - month filter
-  - type filter
-  - search field
-  - cleared toggle
-- Categories page with:
-  - income categories
-  - expense categories
-  - add category
-  - active/inactive toggle
-- Reports page with:
-  - basic monthly Profit & Loss
-  - income by category
-  - expenses by category
-  - net profit
-- Settings / Backup page with:
-  - export all app data as JSON
-  - import JSON backup
-  - export selected client transactions as CSV
-- All data persists in browser `localStorage`
-- Clean desktop-first UI matching `docs/04_DESIGN.md`
-
-**Excludes:**
-
-- Login/auth
-- Database/Supabase
-- Stripe
-- bank feeds
-- payroll
-- invoice sending
-- receipt uploads
-- AI categorization
-- multi-user permissions
-- mobile-first optimization
-- public marketing pages
-
-**Completion Checklist:**
-
-- [ ] App runs locally without runtime errors
-- [ ] Desktop layout is usable at 1280px+ width
-- [ ] User can switch between clients
-- [ ] User can create, edit, and delete clients
-- [ ] User can create, edit, and delete transactions
-- [ ] Dashboard totals update after transaction changes
-- [ ] Reports update after transaction changes
-- [ ] Data remains after browser refresh
-- [ ] User can export JSON backup
-- [ ] User can import JSON backup
-- [ ] User can export selected client CSV
-- [ ] No V1 excluded features were added
-
-**Hard Stop:** Do not add auth, Supabase, Stripe, bank feeds, or any SaaS billing features in Phase 1.
+The first version should help test whether the bookkeeping workflow makes sense for one real bookkeeper.
 
 ---
 
-# Phase 2 — Data Safety + Usability Pass
+# Phase 1 — Local Desktop Mock App
 
-**Goal:** Make the local MVP safer and easier for a real bookkeeper to test with real-ish client data.
+## Goal
 
-**Includes:**
+Build a fully usable desktop-first bookkeeping mock app that runs in the browser and saves demo data with `localStorage`.
 
-- Better empty states
-- Input validation
-- Safer delete confirmations
-- Clear import/export warnings
-- Duplicate transaction prevention warning
-- More useful transaction filters
-- Sortable transaction table columns
-- Date range filter for reports
-- Category cleanup tools
-- Client archive behavior
-- Print-friendly report layout
-- Better error handling around malformed imported JSON
-- App version label
-
-**Excludes:**
-
-- Authentication
-- Database
-- Bank feeds
-- AI categorization
-- Paid accounts
-- Multi-user collaboration
-
-**Completion Checklist:**
-
-- [ ] Forms prevent invalid required fields
-- [ ] Amount values are normalized and displayed consistently
-- [ ] Delete actions require confirmation
-- [ ] Bad backup imports fail safely with a readable error
-- [ ] Reports can be printed cleanly
-- [ ] Archived clients do not clutter the default client switcher
-- [ ] The app still works fully offline in browser storage
-
-**Hard Stop:** Do not convert to Supabase until the local MVP has been tested and the user confirms the workflow makes sense.
+This should feel like a real bookkeeping dashboard, but it is still only a local demo.
 
 ---
 
-# Phase 3 — Supabase Persistence
+## Must Include
 
-**Goal:** Move the app from browser-only storage to real cloud persistence while preserving the same user experience.
-
-**Includes:**
-
-- Supabase project setup instructions
-- Database schema for:
-  - clients
-  - transactions
-  - categories
-  - app settings
-- Migration path from local JSON export into Supabase
-- Server/database data layer
-- Loading states
-- Save states
-- Error states
-- Basic backup export still available
-
-**Excludes:**
-
-- Stripe billing
-- multi-user permissions
-- public onboarding
-- bank feeds
-- payroll
-- receipt storage
-
-**Completion Checklist:**
-
-- [ ] App reads clients from Supabase
-- [ ] App writes clients to Supabase
-- [ ] App reads transactions from Supabase
-- [ ] App writes transactions to Supabase
-- [ ] App reads categories from Supabase
-- [ ] LocalStorage is no longer the source of truth
-- [ ] User can import old local JSON data
-- [ ] User can still export data for backup
-
-**Hard Stop:** Do not add paid billing until cloud data is stable.
+* Desktop-first layout
+* Left sidebar navigation
+* Top bar with app name and selected client switcher
+* Seeded demo data for at least 2 clients
+* Seeded bookkeeping categories
+* LocalStorage persistence
+* Clean dashboard UI
+* Simple bookkeeping workflow
 
 ---
 
-# Phase 4 — Auth + Single Business Account
+## Pages
 
-**Goal:** Add secure login for the main bookkeeper account.
+### Dashboard
 
-**Includes:**
+Must show:
 
-- Supabase Auth
-- Login page
-- Logout
-- Protected dashboard routes
-- Single-owner data access
-- Basic account settings page
+* Total income
+* Total expenses
+* Net profit
+* Uncategorized transactions
+* Recent transactions table
 
-**Excludes:**
+### Clients
 
-- Multiple team members
-- client portals
-- Stripe subscriptions
-- public signup flow
-- role-based permissions
+Must allow:
 
-**Completion Checklist:**
+* View clients
+* Add client
+* Edit client
+* Delete or archive client
+* Switch selected client
 
-- [ ] Unauthenticated users cannot access app data
-- [ ] Authenticated user can access their data
-- [ ] Logout works
-- [ ] Refreshing protected routes keeps the session
-- [ ] Account settings show the logged-in email
+### Transactions
 
-**Hard Stop:** Do not open signup to outside users until billing, access rules, and support expectations are decided.
+Must allow:
 
----
+* View transactions
+* Add transaction
+* Edit transaction
+* Delete transaction
+* Search transactions
+* Filter by month
+* Filter by income/expense
+* Filter by category
+* Mark transaction as cleared
 
-# Phase 5 — Bookkeeper Workflow Upgrade
+### Categories
 
-**Goal:** Add the features that make LedgerDesk genuinely useful for a working bookkeeper managing many clients.
+Must allow:
 
-**Includes:**
+* View income categories
+* View expense categories
+* Add category
+* Edit category
+* Disable/archive category
 
-- Client task notes
-- Monthly close checklist per client
-- Missing category alerts
-- Uncategorized transaction queue
-- Client-level report notes
-- Saved report periods
-- Better client overview dashboard
-- Import CSV transactions from a bank export template
-- Basic transaction matching warnings
+### Reports
 
-**Excludes:**
+Must show:
 
-- Direct bank API integrations
-- automatic reconciliation
-- payroll
-- tax filing
-- receipt OCR
+* Basic monthly Profit & Loss
+* Income by category
+* Expenses by category
+* Net profit
 
-**Completion Checklist:**
+### Settings / Backup
 
-- [ ] Bookkeeper can track which clients need work
-- [ ] Uncategorized items are easy to find
-- [ ] Monthly client close checklist works
-- [ ] CSV import works for a documented template
-- [ ] Imported transactions can be reviewed before saving
+Must allow:
 
-**Hard Stop:** Do not integrate live bank feeds before CSV import and review are stable.
+* Export all app data as JSON
+* Import app data from JSON
+* Export selected client transactions as CSV
+* Reset demo data
 
 ---
 
-# Phase 6 — Private Beta SaaS
+## Data Rules
 
-**Goal:** Prepare LedgerDesk for a small paid private beta with local bookkeepers or small businesses.
+Use browser `localStorage` only.
 
-**Includes:**
+No backend.
+No database.
+No Supabase.
+No API keys.
+No auth.
+No Stripe.
+No payment system.
+No cloud sync.
 
-- Stripe subscription setup
-- Pricing gate
-- Customer account states
-- Basic onboarding
-- Terms/privacy placeholder pages
-- Feedback form
-- Admin-only support notes
-- Production deployment checklist
-
-**Excludes:**
-
-- large-scale public launch
-- enterprise features
-- automated tax advice
-- payroll
-- direct bank feeds unless explicitly approved
-
-**Completion Checklist:**
-
-- [ ] Stripe subscription flow works in test mode
-- [ ] Paid/unpaid access states work
-- [ ] User can subscribe and access the app
-- [ ] User can lose access when unpaid
-- [ ] Terms/privacy placeholders exist
-- [ ] Private beta feedback can be collected
-
-**Hard Stop:** Do not publicly market the product until the first real bookkeeper has tested it and confirmed the core workflow is useful.
+Data should remain after refreshing the browser.
 
 ---
 
-# Phase 7 — Real Accounting Expansion
+## Design Rules
 
-**Goal:** Carefully expand LedgerDesk into a more serious accounting tool only after the simple workflow proves valuable.
+* Desktop-first, not mobile-first
+* Must look clean at 1280px+ width
+* Simple business/dashboard style
+* Clear tables
+* Clear forms
+* No marketing pages
+* No landing page
+* No public SaaS UI
+* No pricing page
+* No account page
+* No login page
 
-**Includes, only if approved later:**
+---
 
-- more formal chart of accounts
-- reconciliation workflow
-- audit trail
-- receipt attachments
-- accountant review export
-- improved CSV import templates
-- possible bank feed research
-- possible AI categorization after manual categorization is stable
+## Completion Checklist
 
-**Excludes by default:**
+* [ ] App runs with `npm install` and `npm run dev`
+* [ ] App has no runtime errors
+* [ ] App is desktop-first
+* [ ] User can switch between demo clients
+* [ ] User can add/edit/delete clients
+* [ ] User can add/edit/delete transactions
+* [ ] Dashboard totals update correctly
+* [ ] Reports update correctly
+* [ ] Data persists after refresh
+* [ ] JSON export works
+* [ ] JSON import works
+* [ ] CSV export works
+* [ ] No auth was added
+* [ ] No Stripe was added
+* [ ] No Supabase was added
+* [ ] No database was added
+* [ ] No third-party service setup is required
 
-- tax filing guarantees
-- payroll compliance
-- legal/accounting claims
-- enterprise accounting promises
+---
 
-**Completion Checklist:**
+## Hard Stop
 
-- [ ] Every new accounting feature has a clear user-tested need
-- [ ] App language avoids legal/tax guarantees
-- [ ] Data export remains available
-- [ ] Core simple workflow is not buried under complexity
+Do not build anything beyond this local mock app unless the user explicitly asks later.
 
-**Hard Stop:** Do not turn LedgerDesk into bloated QuickBooks. The product wins by staying simpler.
+This project should stay simple enough to demo quickly.
