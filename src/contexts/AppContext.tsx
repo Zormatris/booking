@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import type { AppData, Client, Transaction, Category } from '@/lib/types'
-import { loadData, saveData, resetToDemo, isValidBackup } from '@/lib/storage'
+import { loadData, saveData, resetToDemo, getBackupValidationError } from '@/lib/storage'
 import { exportClientCSV, downloadFile } from '@/lib/csv'
 
 interface AppContextValue {
@@ -123,13 +123,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   function importJSON(raw: string): { success: boolean; error?: string } {
     try {
       const parsed = JSON.parse(raw)
-      if (!isValidBackup(parsed)) {
-        return { success: false, error: 'Invalid backup file. Expected clients, transactions, and categories arrays.' }
+      const err = getBackupValidationError(parsed)
+      if (err) {
+        return { success: false, error: `Import failed: ${err}` }
       }
-      update(parsed)
+      update(parsed as AppData)
       return { success: true }
     } catch {
-      return { success: false, error: 'Could not parse the file. Make sure it is a valid LedgerDesk JSON backup.' }
+      return { success: false, error: 'Could not read the file. Make sure it is a valid LedgerDesk JSON backup.' }
     }
   }
 

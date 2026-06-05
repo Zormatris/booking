@@ -138,6 +138,16 @@ export default function ReportsPage() {
         />
       </div>
 
+      {totals.income === 0 && totals.expenses === 0 && (
+        <div className="mt-4 rounded-lg border border-slate-100 bg-slate-50 px-4 py-3">
+          <p className="text-sm text-slate-500">
+            No transactions found for this period.{' '}
+            <a href="/transactions" className="text-blue-600 hover:underline">Add transactions</a>
+            {' '}or adjust the period above to see your Profit &amp; Loss.
+          </p>
+        </div>
+      )}
+
       {totals.uncategorized > 0 && (
         <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
           <p className="text-sm text-amber-800">

@@ -35,11 +35,12 @@ Complete. Phase 2 improvements are built, linted, and production-built successfu
 - **Bug fixed (Phase 1):** dashboard client notes editor resets correctly on client switch (keyed subcomponent)
 - **Phase 2 — Per-field inline validation:** TransactionForm shows errors under each invalid field (date, payee, amount, account) with red border + message. ClientForm shows error under business name field. Errors clear as the user fixes each field.
 - **Phase 2 — Amount normalization:** `Math.abs(amount)` applied on save — amounts always stored as positive regardless of what the browser allows through the number input.
-- **Phase 2 — Stronger backup validation:** `isValidBackup` now validates object shape for every client, transaction, and category (required fields, correct types, enum values, date format). Rejects malformed backups with a clear error message.
+- **Phase 2 — Stronger backup validation + readable errors:** `isValidBackup` validates object shape for every client, transaction, and category. New `getBackupValidationError` function returns a specific human-readable reason (e.g. "Transaction at position 3 is missing required fields") used directly in the Settings import error banner.
 - **Phase 2 — Settings CSV client selector:** Stale `csvClientId` is now resolved gracefully — if the stored selection no longer exists after import/reset/delete, it falls back to the first client in the current list.
 - **Phase 2 — Sortable transaction table:** All 7 data columns (Date, Type, Payee, Category, Account, Amount, Status) are clickable to sort. Clicking the active column toggles asc/desc. Visual ↑/↓/↕ indicators on headers.
 - **Phase 2 — Reports date range:** Mode toggle (Month / Date Range) switches between a month picker and start/end date inputs. Both modes feed the same P&L calculations. Period label updates to reflect selection.
 - **Phase 2 — Print-friendly reports:** Sidebar and TopBar are hidden via `@media print`. App frame layout switches from fixed-height to flow layout when printing. Report tables stack single-column for print width. Print button calls `window.print()`. Print-only header with business name and period appears above the P&L.
+- **Phase 2 — Improved empty states:** Dashboard no-clients state links to the Clients page. Categories panel says "Add one above" when empty. Reports shows a "No transactions found" nudge with a link to Transactions when the period has no data.
 
 ## In Progress
 
@@ -73,12 +74,13 @@ None.
 - [x] TransactionForm shows per-field inline errors (not a single bottom message)
 - [x] ClientForm shows inline error on business name field
 - [x] Amounts stored using `Math.abs()` — always positive, sign from type field
-- [x] Backup import validates object shapes, not just array presence
+- [x] Backup import validates object shapes, not just array presence; specific field-level error shown to user
 - [x] Settings CSV client selector stays valid after import/reset/client deletion
 - [x] Transaction table columns are sortable by clicking headers
 - [x] Reports page supports both month picker and custom date range
 - [x] Reports page has a Print Report button using `window.print()`
 - [x] Sidebar/TopBar hidden when printing; content flows naturally
+- [x] Improved empty states on Dashboard, Categories, and Reports
 - [x] Lint and build pass clean
 
 ## Verification Results (2026-06-04, Phase 2)

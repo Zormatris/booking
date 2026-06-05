@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { AppShell } from '@/components/AppShell'
 import { MetricCard } from '@/components/MetricCard'
 import { TransactionForm } from '@/components/TransactionForm'
@@ -42,7 +43,14 @@ export default function DashboardPage() {
     <AppShell title="Dashboard" action={addButton}>
       {!selectedClient ? (
         <div className="flex h-48 items-center justify-center rounded-xl border border-slate-200 bg-white">
-          <p className="text-sm text-slate-500">No clients yet. Add a client to get started.</p>
+          <div className="text-center">
+            <p className="text-sm text-slate-600">No clients yet.</p>
+            <p className="mt-1 text-xs text-slate-400">
+              Go to{' '}
+              <Link href="/clients" className="text-blue-600 hover:underline">Clients</Link>
+              {' '}to add your first client, then come back here.
+            </p>
+          </div>
         </div>
       ) : (
         <>

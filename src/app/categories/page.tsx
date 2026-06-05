@@ -86,7 +86,9 @@ function CategoryPanel({ title, type, categories, onAdd, onToggle }: CategoryPan
         {error && <p className="mb-3 text-xs text-red-600">{error}</p>}
 
         {categories.length === 0 ? (
-          <p className="py-4 text-center text-sm text-slate-400">No categories yet.</p>
+          <p className="py-4 text-center text-sm text-slate-400">
+            No {type} categories yet. Add one above.
+          </p>
         ) : (
           <ul className="space-y-0.5">
             {[...active, ...inactive].map(cat => (

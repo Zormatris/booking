@@ -58,11 +58,31 @@ function isValidCategoryShape(c: unknown): boolean {
     typeof c.active === 'boolean'
 }
 
+/** Returns a human-readable error string, or null if the backup is valid. */
+export function getBackupValidationError(data: unknown): string | null {
+  if (!isObj(data)) return 'File is not a valid JSON object.'
+  if (!Array.isArray(data.clients)) return 'Missing or invalid clients list.'
+  if (!Array.isArray(data.transactions)) return 'Missing or invalid transactions list.'
+  if (!Array.isArray(data.categories)) return 'Missing or invalid categories list.'
+
+  const badClient = (data.clients as unknown[]).findIndex(c => !isValidClientShape(c))
+  if (badClient >= 0) {
+    return `Client at position ${badClient + 1} is missing required fields (id, businessName, or status).`
+  }
+
+  const badTxn = (data.transactions as unknown[]).findIndex(t => !isValidTransactionShape(t))
+  if (badTxn >= 0) {
+    return `Transaction at position ${badTxn + 1} is missing required fields (id, clientId, date, type, amount, account, or cleared).`
+  }
+
+  const badCat = (data.categories as unknown[]).findIndex(c => !isValidCategoryShape(c))
+  if (badCat >= 0) {
+    return `Category at position ${badCat + 1} is missing required fields (id, name, type, or active).`
+  }
+
+  return null
+}
+
 export function isValidBackup(data: unknown): data is AppData {
-  if (!isObj(data)) return false
-  if (!Array.isArray(data.clients) || !Array.isArray(data.transactions) || !Array.isArray(data.categories)) return false
-  if (!data.clients.every(isValidClientShape)) return false
-  if (!data.transactions.every(isValidTransactionShape)) return false
-  if (!data.categories.every(isValidCategoryShape)) return false
-  return true
+  return getBackupValidationError(data) === null
 }
