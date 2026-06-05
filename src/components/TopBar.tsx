@@ -12,7 +12,7 @@ export function TopBar({ title, action }: TopBarProps) {
   const activeClients = data.clients.filter(c => c.status === 'active')
 
   return (
-    <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 h-16 flex-shrink-0">
+    <header className="no-print flex items-center justify-between border-b border-slate-200 bg-white px-6 h-16 shrink-0">
       <h1 className="text-xl font-semibold tracking-tight text-slate-900">{title}</h1>
 
       <div className="flex items-center gap-3">

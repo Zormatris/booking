@@ -4,59 +4,126 @@ import { useMemo, useState } from 'react'
 import { AppShell } from '@/components/AppShell'
 import { MetricCard } from '@/components/MetricCard'
 import { useApp } from '@/contexts/AppContext'
-import { getTotals, filterByMonth, filterByClient, getByCategory } from '@/lib/calculations'
-import { formatMoney, toMonthValue, fromMonthValue, getMonthLabel } from '@/lib/formatters'
+import { getTotals, filterByMonth, filterByClient, getByCategory, filterByDateRange } from '@/lib/calculations'
+import { formatMoney, formatDate, toMonthValue, fromMonthValue, getMonthLabel } from '@/lib/formatters'
 
 export default function ReportsPage() {
   const { data, selectedClient } = useApp()
 
   const now = new Date()
+  const [mode, setMode] = useState<'month' | 'range'>('month')
   const [monthValue, setMonthValue] = useState(toMonthValue(now.getFullYear(), now.getMonth() + 1))
+  const [startDate, setStartDate] = useState(
+    () => new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
+  )
+  const [endDate, setEndDate] = useState(
+    () => new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
+  )
+
   const { year, month } = fromMonthValue(monthValue)
 
-  const { totals, incomeRows, expenseRows } = useMemo(() => {
+  const periodTxns = useMemo(() => {
     const clientTxns = selectedClient
       ? filterByClient(data.transactions, selectedClient.id)
       : data.transactions
-    const monthTxns = filterByMonth(clientTxns, year, month)
-    return {
-      totals: getTotals(monthTxns),
-      incomeRows: getByCategory(monthTxns, data.categories, 'income'),
-      expenseRows: getByCategory(monthTxns, data.categories, 'expense'),
-    }
-  }, [data.transactions, data.categories, selectedClient, year, month])
+    return mode === 'month'
+      ? filterByMonth(clientTxns, year, month)
+      : filterByDateRange(clientTxns, startDate, endDate)
+  }, [data.transactions, selectedClient, mode, year, month, startDate, endDate])
 
-  const monthLabel = getMonthLabel(year, month)
+  const { totals, incomeRows, expenseRows } = useMemo(() => ({
+    totals: getTotals(periodTxns),
+    incomeRows: getByCategory(periodTxns, data.categories, 'income'),
+    expenseRows: getByCategory(periodTxns, data.categories, 'expense'),
+  }), [periodTxns, data.categories])
+
+  const periodLabel = mode === 'month'
+    ? getMonthLabel(year, month)
+    : `${formatDate(startDate)} – ${formatDate(endDate)}`
 
   return (
     <AppShell title="Reports">
-      <div className="mb-5 flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <label className="text-xs font-medium uppercase tracking-wide text-slate-500">Month</label>
-          <input
-            type="month"
-            value={monthValue}
-            onChange={e => setMonthValue(e.target.value)}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          />
-        </div>
-        {selectedClient && (
-          <span className="text-sm text-slate-500">{selectedClient.businessName} — {monthLabel}</span>
-        )}
+      {/* Shown only when printing — hidden on screen */}
+      <div className="print-only mb-6 border-b border-slate-200 pb-4" style={{ display: 'none' }}>
+        <h1 className="text-2xl font-semibold text-slate-900">Profit &amp; Loss</h1>
+        <p className="mt-1 text-sm text-slate-600">
+          {selectedClient?.businessName ?? 'All Clients'} — {periodLabel}
+        </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      {/* Controls row — hidden when printing */}
+      <div className="no-print mb-5 flex flex-wrap items-center gap-4">
+        <div className="flex overflow-hidden rounded-lg border border-slate-200">
+          <button
+            onClick={() => setMode('month')}
+            className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+              mode === 'month' ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            Month
+          </button>
+          <button
+            onClick={() => setMode('range')}
+            className={`border-l border-slate-200 px-3 py-1.5 text-xs font-medium transition-colors ${
+              mode === 'range' ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            Date Range
+          </button>
+        </div>
+
+        {mode === 'month' ? (
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-medium uppercase tracking-wide text-slate-500">Month</label>
+            <input
+              type="month"
+              value={monthValue}
+              onChange={e => setMonthValue(e.target.value)}
+              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            />
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={startDate}
+              onChange={e => setStartDate(e.target.value)}
+              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            />
+            <span className="text-sm text-slate-400">to</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={e => setEndDate(e.target.value)}
+              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            />
+          </div>
+        )}
+
+        {selectedClient && (
+          <span className="text-sm text-slate-500">{selectedClient.businessName} — {periodLabel}</span>
+        )}
+
+        <button
+          onClick={() => window.print()}
+          className="ml-auto rounded-lg border border-slate-200 bg-white px-4 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          Print Report
+        </button>
+      </div>
+
+      <div className="mb-6 grid grid-cols-3 gap-4">
         <MetricCard label="Total Income" value={formatMoney(totals.income)} valueColor="text-green-600" />
         <MetricCard label="Total Expenses" value={formatMoney(totals.expenses)} valueColor="text-red-600" />
         <MetricCard
           label="Net Profit"
           value={formatMoney(totals.net)}
           valueColor={totals.net >= 0 ? 'text-green-600' : 'text-red-600'}
-          sub={totals.net >= 0 ? 'Profitable month' : 'Net loss'}
+          sub={totals.net >= 0 ? 'Profitable period' : 'Net loss'}
         />
       </div>
 
-      <div className="grid gap-5" style={{ gridTemplateColumns: '1fr 1fr' }}>
+      <div className="report-tables-grid grid gap-5" style={{ gridTemplateColumns: '1fr 1fr' }}>
         <PLTable
           title="Income by Category"
           rows={incomeRows}

@@ -17,3 +17,31 @@
     box-sizing: border-box;
   }
 }
+
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+
+  /* Remove fixed viewport layout so content flows onto the page naturally */
+  .app-outer {
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+  .app-inner {
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+  .app-main {
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  /* Stack the report income/expense tables vertically for print width */
+  .report-tables-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  body { background-color: white !important; }
+}

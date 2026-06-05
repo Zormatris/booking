@@ -22,7 +22,7 @@ export function ClientForm({ client, onClose }: ClientFormProps) {
     status: client?.status ?? 'active' as 'active' | 'inactive',
     notes: client?.notes ?? '',
   })
-  const [error, setError] = useState('')
+  const [businessNameError, setBusinessNameError] = useState('')
 
   function set<K extends keyof typeof form>(key: K, value: typeof form[K]) {
     setForm(prev => ({ ...prev, [key]: value }))
@@ -30,7 +30,7 @@ export function ClientForm({ client, onClose }: ClientFormProps) {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.businessName.trim()) { setError('Business name is required.'); return }
+    if (!form.businessName.trim()) { setBusinessNameError('Business name is required.'); return }
 
     const payload = {
       businessName: form.businessName.trim(),
@@ -75,11 +75,15 @@ export function ClientForm({ client, onClose }: ClientFormProps) {
             <input
               type="text"
               value={form.businessName}
-              onChange={e => set('businessName', e.target.value)}
+              onChange={e => { set('businessName', e.target.value); if (businessNameError) setBusinessNameError('') }}
               placeholder="e.g. Maple Street Bakery"
-              required
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className={`w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:ring-2 ${
+                businessNameError
+                  ? 'border-red-300 focus:border-red-400 focus:ring-red-100'
+                  : 'border-slate-200 focus:border-blue-500 focus:ring-blue-100'
+              }`}
             />
+            {businessNameError && <p className="mt-1 text-xs text-red-600">{businessNameError}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -151,7 +155,6 @@ export function ClientForm({ client, onClose }: ClientFormProps) {
             />
           </div>
 
-          {error && <p className="text-xs text-red-600">{error}</p>}
 
           <div className="flex justify-end gap-2 pt-1">
             <button

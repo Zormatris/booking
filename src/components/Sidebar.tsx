@@ -18,7 +18,7 @@ export function Sidebar() {
   return (
     <aside
       style={{ width: 260, minWidth: 260 }}
-      className="flex h-full flex-col border-r border-slate-200 bg-white"
+      className="no-print flex h-full flex-col border-r border-slate-200 bg-white"
     >
       <div className="flex items-center px-6 py-5 border-b border-slate-200">
         <span className="text-lg font-semibold tracking-tight text-slate-900">LedgerDesk</span>

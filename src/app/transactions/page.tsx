@@ -8,6 +8,8 @@ import { filterByClient, filterByMonth } from '@/lib/calculations'
 import { formatMoney, formatDate, toMonthValue, fromMonthValue } from '@/lib/formatters'
 import type { Transaction } from '@/lib/types'
 
+type SortCol = 'date' | 'type' | 'payee' | 'category' | 'account' | 'amount' | 'status'
+
 export default function TransactionsPage() {
   const { data, selectedClient, deleteTransaction } = useApp()
   const [showForm, setShowForm] = useState(false)
@@ -18,8 +20,21 @@ export default function TransactionsPage() {
   const [monthValue, setMonthValue] = useState(toMonthValue(now.getFullYear(), now.getMonth() + 1))
   const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense'>('all')
   const [search, setSearch] = useState('')
+  const [sortCol, setSortCol] = useState<SortCol>('date')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
 
   const { year, month } = fromMonthValue(monthValue)
+
+  function handleSort(col: SortCol) {
+    if (sortCol === col) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortCol(col)
+      setSortDir('asc')
+    }
+  }
+
+  const si = (col: SortCol) => sortCol === col ? (sortDir === 'asc' ? ' ↑' : ' ↓') : ' ↕'
 
   const filtered = useMemo(() => {
     let txns = selectedClient
@@ -39,8 +54,23 @@ export default function TransactionsPage() {
       )
     }
 
-    return [...txns].sort((a, b) => b.date.localeCompare(a.date))
-  }, [data.transactions, selectedClient, year, month, typeFilter, search])
+    const cats = data.categories
+    return [...txns].sort((a, b) => {
+      let cmp = 0
+      if (sortCol === 'date') cmp = a.date.localeCompare(b.date)
+      else if (sortCol === 'type') cmp = a.type.localeCompare(b.type)
+      else if (sortCol === 'payee') cmp = a.payee.localeCompare(b.payee)
+      else if (sortCol === 'category') {
+        const na = cats.find(c => c.id === a.categoryId)?.name ?? '￿'
+        const nb = cats.find(c => c.id === b.categoryId)?.name ?? '￿'
+        cmp = na.localeCompare(nb)
+      }
+      else if (sortCol === 'account') cmp = a.account.localeCompare(b.account)
+      else if (sortCol === 'amount') cmp = a.amount - b.amount
+      else if (sortCol === 'status') cmp = Number(a.cleared) - Number(b.cleared)
+      return sortDir === 'asc' ? cmp : -cmp
+    })
+  }, [data.transactions, data.categories, selectedClient, year, month, typeFilter, search, sortCol, sortDir])
 
   function handleEdit(txn: Transaction) {
     setEditingTxn(txn)
@@ -54,6 +84,9 @@ export default function TransactionsPage() {
 
   const totalIncome = filtered.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
   const totalExpenses = filtered.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
+
+  const sortableTh = 'cursor-pointer select-none px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500 hover:bg-slate-100 transition-colors'
+  const sortableThRight = 'cursor-pointer select-none px-4 py-3 text-right text-xs font-medium uppercase tracking-wide text-slate-500 hover:bg-slate-100 transition-colors'
 
   const addButton = (
     <button
@@ -109,13 +142,13 @@ export default function TransactionsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50">
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Type</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Payee / Vendor</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Category</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Account</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wide text-slate-500">Amount</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Status</th>
+                  <th onClick={() => handleSort('date')} className={sortableTh}>Date{si('date')}</th>
+                  <th onClick={() => handleSort('type')} className={sortableTh}>Type{si('type')}</th>
+                  <th onClick={() => handleSort('payee')} className={sortableTh}>Payee / Vendor{si('payee')}</th>
+                  <th onClick={() => handleSort('category')} className={sortableTh}>Category{si('category')}</th>
+                  <th onClick={() => handleSort('account')} className={sortableTh}>Account{si('account')}</th>
+                  <th onClick={() => handleSort('amount')} className={sortableThRight}>Amount{si('amount')}</th>
+                  <th onClick={() => handleSort('status')} className={sortableTh}>Status{si('status')}</th>
                   <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wide text-slate-500">Actions</th>
                 </tr>
               </thead>

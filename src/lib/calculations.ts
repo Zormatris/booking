@@ -19,6 +19,10 @@ export function filterByMonth(transactions: Transaction[], year: number, month: 
   })
 }
 
+export function filterByDateRange(transactions: Transaction[], startDate: string, endDate: string) {
+  return transactions.filter(t => t.date >= startDate && t.date <= endDate)
+}
+
 export function filterByClient(transactions: Transaction[], clientId: string) {
   return transactions.filter(t => t.clientId === clientId)
 }

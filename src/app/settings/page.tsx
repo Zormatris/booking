@@ -9,6 +9,8 @@ export default function SettingsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const [csvClientId, setCsvClientId] = useState(data.selectedClientId ?? data.clients[0]?.id ?? '')
+  // If the stored selection no longer exists (after import/reset/delete), fall back gracefully
+  const resolvedCsvId = data.clients.find(c => c.id === csvClientId)?.id ?? data.clients[0]?.id ?? ''
   const [resetConfirm, setResetConfirm] = useState(false)
 
   function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
@@ -93,7 +95,7 @@ export default function SettingsPage() {
           </p>
           <div className="flex items-center gap-3">
             <select
-              value={csvClientId}
+              value={resolvedCsvId}
               onChange={e => setCsvClientId(e.target.value)}
               className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             >
@@ -102,8 +104,8 @@ export default function SettingsPage() {
               ))}
             </select>
             <button
-              onClick={() => csvClientId && exportClientCSVAction(csvClientId)}
-              disabled={!csvClientId || data.clients.length === 0}
+              onClick={() => resolvedCsvId && exportClientCSVAction(resolvedCsvId)}
+              disabled={!resolvedCsvId || data.clients.length === 0}
               className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Export CSV
