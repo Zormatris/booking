@@ -48,7 +48,7 @@ export function Sidebar() {
       </nav>
 
       <div className="px-5 py-4 border-t border-slate-200">
-        <p className="text-xs text-slate-400">Phase 1 — Local Storage</p>
+        <p className="text-xs text-slate-400">LedgerDesk — Local MVP</p>
         <p className="text-xs text-slate-400">Export backups often.</p>
       </div>
     </aside>

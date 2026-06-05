@@ -6,113 +6,94 @@ Phase 2 — Data Safety + Usability Pass
 
 ## Current Target
 
-Complete. Phase 2 improvements are built, linted, and production-built successfully.
+Phase 2 is complete. All Phase 2 checklist items from docs/02_PHASES.md are satisfied.
 
 ## Last Build
 
-2026-06-04 — Phase 2 usability pass by Claude Code. 10 improvements shipped.
+2026-06-04 — Phase 2 correction pass by Claude Code. Duplicate warning, relationship validation, category cleanup, inactive client switcher fix, stale copy updated.
 
 ## Completed
 
-- Product source of truth completed
-- Master phase plan completed
-- Design system completed
-- Workflow rules completed
-- GPT project files completed
+### Phase 1 — Desktop Local MVP
 - App shell: 260px sidebar, top bar with client switcher, full desktop layout
 - localStorage persistence (single key `ledgerdesk_data`)
 - Seeded demo data: 2 clients, 14 categories, 10 transactions (all in current month)
 - AppContext: central state management, all CRUD operations
-- Dashboard: 4 metric cards (income, expenses, net profit, uncategorized), recent transactions table, client notes panel, Add Transaction action
+- Dashboard: 4 metric cards, recent transactions table, client notes panel, Add Transaction action
 - Clients page: full client list, add/edit/delete with confirmation, active/inactive status, transaction count
-- Transactions page: table with all 8 columns, month filter, type filter, search, add/edit/delete with confirmation, row totals footer
+- Transactions page: table with all 8 columns, month filter, type filter, search, add/edit/delete, totals footer
 - Categories page: two-panel layout (income / expense), add category, active/inactive toggle
 - Reports page: monthly P&L, income by category table, expenses by category table, net profit cards, uncategorized warning
-- Settings / Backup page: export JSON, import JSON with validation, export selected client CSV, reset demo data with danger zone + double confirmation
+- Settings / Backup page: export JSON, import JSON with validation, export selected client CSV, reset demo data with double confirmation
 - App metadata updated to LedgerDesk
-- Default Next.js starter page replaced
-- **Phase 1 verification pass completed:** lint clean, build clean, dev server starts in ~420ms
-- **Bug fixed (Phase 1):** dashboard client notes editor resets correctly on client switch (keyed subcomponent)
-- **Phase 2 — Per-field inline validation:** TransactionForm shows errors under each invalid field (date, payee, amount, account) with red border + message. ClientForm shows error under business name field. Errors clear as the user fixes each field.
-- **Phase 2 — Amount normalization:** `Math.abs(amount)` applied on save — amounts always stored as positive regardless of what the browser allows through the number input.
-- **Phase 2 — Stronger backup validation + readable errors:** `isValidBackup` validates object shape for every client, transaction, and category. New `getBackupValidationError` function returns a specific human-readable reason (e.g. "Transaction at position 3 is missing required fields") used directly in the Settings import error banner.
-- **Phase 2 — Settings CSV client selector:** Stale `csvClientId` is now resolved gracefully — if the stored selection no longer exists after import/reset/delete, it falls back to the first client in the current list.
-- **Phase 2 — Sortable transaction table:** All 7 data columns (Date, Type, Payee, Category, Account, Amount, Status) are clickable to sort. Clicking the active column toggles asc/desc. Visual ↑/↓/↕ indicators on headers.
-- **Phase 2 — Reports date range:** Mode toggle (Month / Date Range) switches between a month picker and start/end date inputs. Both modes feed the same P&L calculations. Period label updates to reflect selection.
-- **Phase 2 — Print-friendly reports:** Sidebar and TopBar are hidden via `@media print`. App frame layout switches from fixed-height to flow layout when printing. Report tables stack single-column for print width. Print button calls `window.print()`. Print-only header with business name and period appears above the P&L.
-- **Phase 2 — Improved empty states:** Dashboard no-clients state links to the Clients page. Categories panel says "Add one above" when empty. Reports shows a "No transactions found" nudge with a link to Transactions when the period has no data.
+
+### Phase 2 — Data Safety + Usability Pass
+- **Per-field inline validation:** TransactionForm shows red border + error under each invalid field (Date, Payee, Amount, Account). ClientForm shows error under Business Name. Errors clear per-field as fixed.
+- **Amount normalization:** `Math.abs(amount)` applied on save; amounts always stored positive; sign shown via type field.
+- **Stronger backup import validation:** `getBackupValidationError` checks object shape for every client, transaction, and category item AND cross-entity relationships: `selectedClientId` must match a client, every transaction `clientId` must match a client, every non-null `categoryId` must match a category. Specific human-readable error shown in import banner.
+- **Settings CSV client selector:** `resolvedCsvId` derived from live client list — stays valid after import, reset, or deletion.
+- **Sortable transaction table:** All 7 data columns clickable (Date, Type, Payee, Category, Account, Amount, Status) with ↑/↓/↕ sort indicators.
+- **Reports date range:** Month / Date Range toggle; custom start + end date inputs feed the same P&L calculations.
+- **Print-friendly reports:** Sidebar and TopBar hidden via `@media print`; content flows to page; tables stack single-column; Print Report button calls `window.print()`; print-only header with client + period.
+- **Improved empty states:** Dashboard no-clients links to /clients. Categories panel says "Add one above." Reports shows no-data nudge with link to Transactions.
+- **Duplicate transaction warning:** On Add mode, if a transaction with the same client/date/type/payee/amount/account exists, a warning replaces the submit button row. User can "Add Anyway" or "Go Back" to edit.
+- **Category cleanup tools:** Each category shows its transaction usage count inline. Deactivating a category with active transaction usage prompts an inline confirmation ("Used by N transactions. Deactivate? Yes / Cancel"). Categories with 0 usage toggle immediately.
+- **Client archive behavior:** Inactive clients are removed from the default top-bar client switcher. Only the currently selected client is shown if it is inactive (labelled "(inactive)"). All inactive clients remain fully visible on the Clients page.
+- **Stale UI copy corrected:** Sidebar footer now reads "LedgerDesk — Local MVP" (was "Phase 1 — Local Storage"). Settings version note now reads "LedgerDesk — Local MVP" (was "LedgerDesk — Phase 1").
+
+## Phase 2 Completion Checklist (from docs/02_PHASES.md)
+
+- [x] Forms prevent invalid required fields
+- [x] Amount values are normalized and displayed consistently
+- [x] Delete actions require confirmation
+- [x] Bad backup imports fail safely with a readable error
+- [x] Reports can be printed cleanly
+- [x] Archived clients do not clutter the default client switcher
+- [x] The app still works fully offline in browser storage
 
 ## In Progress
 
-- Ready for user testing on localhost.
+Ready for bookkeeper testing on localhost.
 
 ## Not Started
 
-- Phase 3+ (Supabase, auth, billing)
+- Phase 3+ (Supabase, auth, billing — parked until workflow is confirmed useful by the first real user)
 
 ## Blockers
 
 None.
 
-## Phase 1 Completion Criteria
-
-- [x] App runs locally without runtime errors
-- [x] Desktop layout is usable at 1280px+ width
-- [x] User can switch between clients
-- [x] User can create, edit, and delete clients
-- [x] User can create, edit, and delete transactions
-- [x] Dashboard totals update after transaction changes
-- [x] Reports update after transaction changes
-- [x] Data remains after browser refresh (localStorage)
-- [x] User can export JSON backup
-- [x] User can import JSON backup
-- [x] User can export selected client CSV
-- [x] No V1 excluded features were added
-
-## Phase 2 Completion Criteria
-
-- [x] TransactionForm shows per-field inline errors (not a single bottom message)
-- [x] ClientForm shows inline error on business name field
-- [x] Amounts stored using `Math.abs()` — always positive, sign from type field
-- [x] Backup import validates object shapes, not just array presence; specific field-level error shown to user
-- [x] Settings CSV client selector stays valid after import/reset/client deletion
-- [x] Transaction table columns are sortable by clicking headers
-- [x] Reports page supports both month picker and custom date range
-- [x] Reports page has a Print Report button using `window.print()`
-- [x] Sidebar/TopBar hidden when printing; content flows naturally
-- [x] Improved empty states on Dashboard, Categories, and Reports
-- [x] Lint and build pass clean
-
-## Verification Results (2026-06-04, Phase 2)
+## Verification Results (2026-06-04, Phase 2 correction)
 
 | Check | Result |
 |---|---|
 | `npm run lint` | Passed — 0 errors |
 | `npm run build` | Passed — all 6 routes compiled, TypeScript clean |
 
-## User Localhost Test Checklist (Phase 2)
+## User Localhost Test Checklist
 
 Run `npm run dev`, then test at http://localhost:3000:
 
-1. Open Add Transaction — leave Payee blank, click Add. Confirm error appears under the Payee field (red border + message). Fill in payee and confirm error clears.
-2. Leave Amount empty, click Add. Confirm error appears under Amount field.
-3. Open Add Client — leave Business Name blank, click Add Client. Confirm inline error under Business Name.
-4. Go to Transactions — click the Date column header. Confirm rows re-sort and ↑/↓ arrow appears. Click again to reverse. Click other columns (Amount, Status, Category).
-5. Go to Reports — click "Date Range" toggle. Confirm two date pickers appear. Change the range and confirm the P&L tables update.
-6. On Reports, click "Print Report". Confirm the print dialog opens with sidebar and topbar hidden.
-7. Go to Settings — export a JSON backup. Then import it. Confirm the CSV client selector still shows a valid client.
-8. Reset to demo data. Confirm the CSV client selector still shows a valid client (not blank).
+1. **Duplicate warning:** Add Transaction — fill in exact same date/payee/amount/account as an existing transaction. Click Add. Confirm "Possible duplicate transaction" warning appears with "Add Anyway" and "Go Back" buttons.
+2. **Field validation:** Leave Payee blank, click Add. Confirm red border + error under Payee only. Fix payee, confirm error clears immediately.
+3. **Categories usage count:** Go to Categories. Confirm each category shows a transaction count like "12 txns" next to the name.
+4. **Category deactivate warning:** Click "Active" on a category with transactions. Confirm an inline "Used by N transactions. Deactivate? Yes / Cancel" prompt appears before toggling.
+5. **Client switcher — inactive clients hidden:** Go to Clients and mark Rivera Plumbing LLC as Inactive. Return to any page. Confirm Rivera Plumbing is NOT in the top-bar client switcher (unless it was the selected client).
+6. **Client still accessible if inactive while selected:** Make Rivera Plumbing the selected client, then mark it inactive. Confirm it appears in the switcher as "Rivera Plumbing LLC (inactive)" but other inactive clients do not appear.
+7. **Import error specifics:** In Settings, import a JSON file where you have manually removed a `clientId` field from a transaction. Confirm the error message names the specific transaction position and field.
+8. **Import relationship check:** In Settings, import a JSON file where a transaction references a `clientId` that doesn't exist in the clients list. Confirm a specific relationship error message appears.
+9. **Sidebar copy:** Confirm the sidebar footer says "LedgerDesk — Local MVP" (not "Phase 1").
+10. **Print reports:** Go to Reports, click Print Report. Confirm sidebar and TopBar are absent from the print view.
 
 ## Parking Lot
 
-These ideas are approved for future discussion but must not be built in Phase 1/2:
+Not building in Phase 1/2:
 
 - Supabase database
 - user login/auth
 - Stripe subscription billing
 - multiple user accounts
-- bank feeds
-- CSV bank statement import
+- bank feeds / CSV bank import
 - receipt uploads
 - AI categorization
 - reconciliation workflow
@@ -123,8 +104,10 @@ These ideas are approved for future discussion but must not be built in Phase 1/
 
 ## Next GPT Action
 
-Phase 2 is built and verified. Recommended next actions:
+Phase 2 is fully complete. All checklist items satisfied.
 
-1. Ask the user to complete the Phase 2 localhost test checklist above and confirm usability improvements work.
-2. If the bookkeeper has tested Phase 1 + Phase 2 and confirms the workflow is useful, plan Phase 3 — either Supabase migration or additional workflow features based on feedback.
-3. Possible Phase 2.5 candidates (not yet approved): multi-month trend charts, duplicate transaction detection, transaction search across all months.
+Recommended next actions:
+
+1. Ask the bookkeeper to run through the localhost test checklist above on real or near-real client data.
+2. If the bookkeeper confirms the workflow is useful and Phase 2 is stable, advance to Phase 3 (Supabase migration) or a Phase 2.5 workflow pass (multi-month trends, CSV bank import template, uncategorized transaction queue).
+3. Do not start Phase 3 until the bookkeeper confirms the core workflow makes sense.

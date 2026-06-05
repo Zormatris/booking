@@ -147,7 +147,7 @@ export default function SettingsPage() {
 
         <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-xs text-slate-400">
-            <strong className="text-slate-500">LedgerDesk — Phase 1</strong> · Data is stored in this browser only.
+            <strong className="text-slate-500">LedgerDesk — Local MVP</strong> · Data is stored in this browser only.
             Export backups often. Data will be lost if you clear browser storage.
           </p>
         </div>
