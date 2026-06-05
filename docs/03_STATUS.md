@@ -10,7 +10,7 @@ Phase 2 is complete. All Phase 2 checklist items from docs/02_PHASES.md are sati
 
 ## Last Build
 
-2026-06-04 — Phase 2 correction pass by Claude Code. Duplicate warning, relationship validation, category cleanup, inactive client switcher fix, stale copy updated.
+2026-06-04 — Phase 2 acceptance smoke test by Claude Code. All automated checks passed, full code review of Phase 2 checklist items confirmed — no bugs found. Ready for bookkeeper testing.
 
 ## Completed
 
@@ -63,12 +63,15 @@ Ready for bookkeeper testing on localhost.
 
 None.
 
-## Verification Results (2026-06-04, Phase 2 correction)
+## Verification Results (2026-06-04, Phase 2 acceptance smoke test)
 
 | Check | Result |
 |---|---|
+| `npm install` | Up to date — 2 moderate vulnerabilities (non-blocking, no fix available) |
 | `npm run lint` | Passed — 0 errors |
 | `npm run build` | Passed — all 6 routes compiled, TypeScript clean |
+| `npm run dev` | Started successfully — HTTP 200 on localhost |
+| Code review | All Phase 2 checklist items verified present and correct — no bugs found |
 
 ## User Localhost Test Checklist
 
