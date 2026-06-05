@@ -7,12 +7,11 @@ import { TransactionForm } from '@/components/TransactionForm'
 import { useApp } from '@/contexts/AppContext'
 import { getTotals, filterByMonth, filterByClient } from '@/lib/calculations'
 import { formatMoney, formatDate } from '@/lib/formatters'
+import type { Client } from '@/lib/types'
 
 export default function DashboardPage() {
-  const { data, selectedClient, updateClient } = useApp()
+  const { data, selectedClient } = useApp()
   const [showForm, setShowForm] = useState(false)
-  const [editingNotes, setEditingNotes] = useState(false)
-  const [notes, setNotes] = useState('')
 
   const now = new Date()
   const year = now.getFullYear()
@@ -29,18 +28,6 @@ export default function DashboardPage() {
     .slice(0, 10)
 
   const monthLabel = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-
-  function startEditNotes() {
-    setNotes(selectedClient?.notes ?? '')
-    setEditingNotes(true)
-  }
-
-  function saveNotes() {
-    if (selectedClient) {
-      updateClient(selectedClient.id, { notes })
-    }
-    setEditingNotes(false)
-  }
 
   const addButton = (
     <button
@@ -129,79 +116,8 @@ export default function DashboardPage() {
               )}
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-              <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-                <h2 className="text-sm font-semibold text-slate-900">Client Notes</h2>
-                {!editingNotes && (
-                  <button
-                    onClick={startEditNotes}
-                    className="text-xs text-blue-600 hover:underline"
-                  >
-                    Edit
-                  </button>
-                )}
-              </div>
-              <div className="px-5 py-4">
-                {editingNotes ? (
-                  <>
-                    <textarea
-                      value={notes}
-                      onChange={e => setNotes(e.target.value)}
-                      rows={6}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 resize-none"
-                    />
-                    <div className="mt-2 flex gap-2">
-                      <button
-                        onClick={saveNotes}
-                        className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
-                      >
-                        Save
-                      </button>
-                      <button
-                        onClick={() => setEditingNotes(false)}
-                        className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <p className="text-sm leading-relaxed text-slate-600 whitespace-pre-wrap">
-                    {selectedClient.notes || <span className="text-slate-400 italic">No notes yet. Click Edit to add.</span>}
-                  </p>
-                )}
-              </div>
-
-              <div className="border-t border-slate-100 px-5 py-4">
-                <p className="text-xs font-medium uppercase tracking-wide text-slate-500 mb-2">Client Info</p>
-                <dl className="space-y-1.5">
-                  {selectedClient.contactName && (
-                    <div className="flex justify-between">
-                      <dt className="text-xs text-slate-400">Contact</dt>
-                      <dd className="text-xs text-slate-700">{selectedClient.contactName}</dd>
-                    </div>
-                  )}
-                  {selectedClient.email && (
-                    <div className="flex justify-between">
-                      <dt className="text-xs text-slate-400">Email</dt>
-                      <dd className="text-xs text-slate-700">{selectedClient.email}</dd>
-                    </div>
-                  )}
-                  {selectedClient.phone && (
-                    <div className="flex justify-between">
-                      <dt className="text-xs text-slate-400">Phone</dt>
-                      <dd className="text-xs text-slate-700">{selectedClient.phone}</dd>
-                    </div>
-                  )}
-                  {selectedClient.businessType && (
-                    <div className="flex justify-between">
-                      <dt className="text-xs text-slate-400">Type</dt>
-                      <dd className="text-xs text-slate-700">{selectedClient.businessType}</dd>
-                    </div>
-                  )}
-                </dl>
-              </div>
-            </div>
+            {/* key forces remount on client switch, resetting the edit state */}
+            <ClientDetailsPanel key={selectedClient.id} client={selectedClient} />
           </div>
         </>
       )}
@@ -213,5 +129,92 @@ export default function DashboardPage() {
         />
       )}
     </AppShell>
+  )
+}
+
+function ClientDetailsPanel({ client }: { client: Client }) {
+  const { updateClient } = useApp()
+  const [editing, setEditing] = useState(false)
+  const [notes, setNotes] = useState(client.notes ?? '')
+
+  function saveNotes() {
+    updateClient(client.id, { notes })
+    setEditing(false)
+  }
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+        <h2 className="text-sm font-semibold text-slate-900">Client Notes</h2>
+        {!editing && (
+          <button
+            onClick={() => setEditing(true)}
+            className="text-xs text-blue-600 hover:underline"
+          >
+            Edit
+          </button>
+        )}
+      </div>
+      <div className="px-5 py-4">
+        {editing ? (
+          <>
+            <textarea
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              rows={6}
+              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 resize-none"
+            />
+            <div className="mt-2 flex gap-2">
+              <button
+                onClick={saveNotes}
+                className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => { setEditing(false); setNotes(client.notes ?? '') }}
+                className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </>
+        ) : (
+          <p className="text-sm leading-relaxed text-slate-600 whitespace-pre-wrap">
+            {client.notes || <span className="text-slate-400 italic">No notes yet. Click Edit to add.</span>}
+          </p>
+        )}
+      </div>
+
+      <div className="border-t border-slate-100 px-5 py-4">
+        <p className="text-xs font-medium uppercase tracking-wide text-slate-500 mb-2">Client Info</p>
+        <dl className="space-y-1.5">
+          {client.contactName && (
+            <div className="flex justify-between">
+              <dt className="text-xs text-slate-400">Contact</dt>
+              <dd className="text-xs text-slate-700">{client.contactName}</dd>
+            </div>
+          )}
+          {client.email && (
+            <div className="flex justify-between">
+              <dt className="text-xs text-slate-400">Email</dt>
+              <dd className="text-xs text-slate-700">{client.email}</dd>
+            </div>
+          )}
+          {client.phone && (
+            <div className="flex justify-between">
+              <dt className="text-xs text-slate-400">Phone</dt>
+              <dd className="text-xs text-slate-700">{client.phone}</dd>
+            </div>
+          )}
+          {client.businessType && (
+            <div className="flex justify-between">
+              <dt className="text-xs text-slate-400">Type</dt>
+              <dd className="text-xs text-slate-700">{client.businessType}</dd>
+            </div>
+          )}
+        </dl>
+      </div>
+    </div>
   )
 }

@@ -1,12 +1,11 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { AppShell } from '@/components/AppShell'
 import { MetricCard } from '@/components/MetricCard'
 import { useApp } from '@/contexts/AppContext'
 import { getTotals, filterByMonth, filterByClient, getByCategory } from '@/lib/calculations'
 import { formatMoney, toMonthValue, fromMonthValue, getMonthLabel } from '@/lib/formatters'
-import { useState } from 'react'
 
 export default function ReportsPage() {
   const { data, selectedClient } = useApp()
